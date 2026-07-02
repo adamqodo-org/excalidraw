@@ -63,3 +63,5 @@ export const gridSnapOffset = (
   const snapped = snapPoint(pointerX, pointerY, options);
   return { dx: snapped.x - pointerX, dy: snapped.y - pointerY };
 };
+
+// retrigger 231602
