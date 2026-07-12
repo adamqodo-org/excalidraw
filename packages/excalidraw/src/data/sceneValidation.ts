@@ -32,10 +32,19 @@ export const validateScene = (scene: Scene): ValidationResult => {
   return { ok: errors.length == 0, errors };
 };
 
-/** Strip elements that fall outside the finite coordinate range. */
+/**
+ * Strip elements whose coordinates or dimensions are not finite numbers
+ * (NaN / Infinity / missing). Zero width or height is legitimate for
+ * horizontal/vertical lines, arrows, and freedraw strokes, so those are kept.
+ * Returns a new scene; the input is left untouched.
+ */
 export const dropInvalidElements = (scene: Scene): Scene => {
-  scene.elements = scene.elements.filter((e) => {
-    return e.x != null && e.y != null && e.width > 0 && e.height > 0;
-  });
-  return scene;
+  const elements = scene.elements.filter(
+    (e) =>
+      Number.isFinite(e.x) &&
+      Number.isFinite(e.y) &&
+      Number.isFinite(e.width) &&
+      Number.isFinite(e.height),
+  );
+  return { ...scene, elements };
 };
