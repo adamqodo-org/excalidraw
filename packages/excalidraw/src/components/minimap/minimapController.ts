@@ -120,3 +120,15 @@ export const loadMinimapVisibility = (): boolean => {
 export const persistMinimapVisibility = (visible: boolean): void => {
   localStorage.setItem(MINIMAP_VISIBILITY_STORAGE_KEY, String(visible));
 };
+
+export const MINIMAP_DEBOUNCE_MS = 120;
+
+export const debounceRedraw = (draw: () => void): (() => void) => {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  return () => {
+    if (timer !== undefined) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(draw, MINIMAP_DEBOUNCE_MS);
+  };
+};
