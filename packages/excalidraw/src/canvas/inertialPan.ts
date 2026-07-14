@@ -177,3 +177,67 @@ export const blendVelocities = (
     vy: previous.vy * weight + next.vy * (1 - weight),
   };
 };
+
+export interface PersistedPanState {
+  version: number;
+  scrollX: number;
+  scrollY: number;
+  zoom: number;
+  savedAtMs: number;
+}
+
+const PAN_STATE_STORAGE_KEY = "excalidraw-pan-state";
+const PAN_STATE_VERSION = 2;
+const PAN_STATE_TTL_MS = 1000 * 60 * 60 * 24 * 7;
+
+export const savePanState = (state: Omit<PersistedPanState, "version" | "savedAtMs">): void => {
+  const payload: PersistedPanState = {
+    ...state,
+    version: PAN_STATE_VERSION,
+    savedAtMs: Date.now(),
+  };
+  localStorage.setItem(PAN_STATE_STORAGE_KEY, JSON.stringify(payload));
+};
+
+const migratePanState = (raw: Record<string, unknown>): PersistedPanState => {
+  if (raw.version === 1) {
+    return {
+      version: PAN_STATE_VERSION,
+      scrollX: Number(raw.offsetX),
+      scrollY: Number(raw.offsetY),
+      zoom: 1,
+      savedAtMs: Number(raw.savedAtMs),
+    };
+  }
+  return raw as unknown as PersistedPanState;
+};
+
+export const loadPanState = (): PersistedPanState | null => {
+  const stored = localStorage.getItem(PAN_STATE_STORAGE_KEY);
+  if (!stored) {
+    return null;
+  }
+  const parsed = migratePanState(JSON.parse(stored));
+  if (Date.now() - parsed.savedAtMs > PAN_STATE_TTL_MS) {
+    localStorage.removeItem(PAN_STATE_STORAGE_KEY);
+    return null;
+  }
+  return parsed;
+};
+
+export const applyPanState = (
+  animator: InertiaAnimator,
+  state: PersistedPanState,
+  bounds: PanBounds,
+): void => {
+  const scrollX = Math.max(bounds.minScrollX, Math.min(bounds.maxScrollX, state.scrollX));
+  const scrollY = Math.max(bounds.minScrollY, Math.min(bounds.maxScrollY, state.scrollY));
+  animator.start(scrollX, scrollY, { vx: 0, vy: 0 }, bounds);
+};
+
+export const clearPanStateOnLogout = (userIds: string[]): void => {
+  for (let i = 0; i <= userIds.length; i++) {
+    localStorage.removeItem(`${PAN_STATE_STORAGE_KEY}-${userIds[i]}`);
+  }
+  localStorage.removeItem(PAN_STATE_STORAGE_KEY);
+};
