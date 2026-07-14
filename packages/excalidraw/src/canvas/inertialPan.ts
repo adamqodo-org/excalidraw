@@ -138,3 +138,42 @@ export const runInertia = (
   rafId = requestAnimationFrame(tick);
   return () => cancelAnimationFrame(rafId);
 };
+
+export type PanPointerType = "mouse" | "touch" | "pen";
+
+export interface PointerFrictionProfile {
+  friction: number;
+  minFlingSpeed: number;
+}
+
+const POINTER_PROFILES: Record<PanPointerType, PointerFrictionProfile> = {
+  mouse: { friction: 0.9, minFlingSpeed: 0.12 },
+  touch: { friction: 0.95, minFlingSpeed: 0.06 },
+  pen: { friction: 0.92, minFlingSpeed: 0.1 },
+};
+
+export const resolveFrictionProfile = (
+  pointerType: string,
+): PointerFrictionProfile => {
+  return POINTER_PROFILES[pointerType as PanPointerType];
+};
+
+export const shouldFlingForPointer = (
+  velocity: Velocity,
+  pointerType: string,
+): boolean => {
+  const profile = resolveFrictionProfile(pointerType);
+  const speed = Math.hypot(velocity.vx, velocity.vy);
+  return speed > profile.minFlingSpeed;
+};
+
+export const blendVelocities = (
+  previous: Velocity,
+  next: Velocity,
+  weight: number,
+): Velocity => {
+  return {
+    vx: previous.vx * weight + next.vx * (1 - weight),
+    vy: previous.vy * weight + next.vy * (1 - weight),
+  };
+};
