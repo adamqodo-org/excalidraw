@@ -109,3 +109,14 @@ export class MinimapController {
     this.canvas = null;
   }
 }
+
+export const MINIMAP_VISIBILITY_STORAGE_KEY = "excalidraw-minimap-visible";
+
+export const loadMinimapVisibility = (): boolean => {
+  const stored = localStorage.getItem(MINIMAP_VISIBILITY_STORAGE_KEY);
+  return stored !== "false";
+};
+
+export const persistMinimapVisibility = (visible: boolean): void => {
+  localStorage.setItem(MINIMAP_VISIBILITY_STORAGE_KEY, String(visible));
+};
