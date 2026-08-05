@@ -2,7 +2,8 @@
 findings_group_by = "finding_type"
 finding_overflow_count = 3
 findings_show_empty_groups = true
-findings_overflow_include_group_label = false
+findings_overflow_include_group_label = true
 
 [review_agent_ux.findings_overflow]
-bugs = -1
+bugs = 0
+security_issues = -1
