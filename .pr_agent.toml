@@ -2,9 +2,9 @@
 findings_group_by = "action_level"
 finding_overflow_count = 3
 findings_show_empty_groups = false
-findings_overflow_include_group_label = false
+findings_overflow_include_group_label = true
 
 [review_agent_ux.findings_overflow]
-action_required = -1
-remediation_recommended = 1
+action_required = 0
+remediation_recommended = 0
 informational = 0
