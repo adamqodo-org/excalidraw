@@ -1,3 +1,7 @@
+
+[daily_tips]
+use_legacy_content = false
+
 [review_agent_ux]
 findings_group_by = "action_level"
 finding_overflow_count = 1
