@@ -1,9 +1,0 @@
-[review_agent_ux]
-findings_group_by = "action_level"
-severity_terminology = "high_medium_low"
-finding_overflow_count = 3
-
-[review_agent_ux.findings_overflow]
-action_required = -1
-remediation_recommended = 1
-informational = 0
