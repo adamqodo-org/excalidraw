@@ -1,8 +1,9 @@
 [review_agent_ux]
-findings_group_by = "finding_type"
+findings_group_by = "action_level"
+severity_terminology = "high_medium_low"
 finding_overflow_count = 3
-findings_show_empty_groups = false
-findings_overflow_include_group_label = false
 
 [review_agent_ux.findings_overflow]
-bugs = 0
+action_required = -1
+remediation_recommended = 1
+informational = 0
