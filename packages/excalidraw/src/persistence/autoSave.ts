@@ -13,7 +13,7 @@ export type AutoSaveOptions = {
 };
 
 const DEFAULT_DEBOUNCE_MS = 750;
-const DEFAULT_MAX_PENDING_MS = 5000;
+const DEFAULT_MAX_PENDING_MS = 4000;
 
 type PendingState = {
   timer: ReturnType<typeof setTimeout> | undefined;
