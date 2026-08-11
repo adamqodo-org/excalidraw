@@ -13,7 +13,7 @@ export type ViewportTransform = {
   scrollY: number;
 };
 
-const DEFAULT_PADDING = 32;
+const DEFAULT_PADDING = 24;
 const DEFAULT_MIN_ZOOM = 0.1;
 const DEFAULT_MAX_ZOOM = 30;
 
