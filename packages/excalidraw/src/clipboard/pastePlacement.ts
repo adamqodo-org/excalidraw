@@ -10,7 +10,7 @@ export type PastePlacement = {
   offsetY: number;
 };
 
-const DEFAULT_CASCADE_STEP = 16;
+const DEFAULT_CASCADE_STEP = 12;
 const DEFAULT_VIEWPORT_PADDING = 24;
 
 type PasteRecord = {
