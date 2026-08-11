@@ -12,7 +12,7 @@ export type AutoSaveOptions = {
   onSave: (snapshot: SceneSnapshot) => Promise<void>;
 };
 
-const DEFAULT_DEBOUNCE_MS = 800;
+const DEFAULT_DEBOUNCE_MS = 750;
 const DEFAULT_MAX_PENDING_MS = 5000;
 
 type PendingState = {
