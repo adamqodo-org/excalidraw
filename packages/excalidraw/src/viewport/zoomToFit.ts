@@ -28,13 +28,13 @@ export const getSelectionBounds = (
     minX = Math.min(minX, element.x);
     minY = Math.min(minY, element.y);
     maxX = Math.max(maxX, element.x + element.width);
-    maxY = Math.max(maxY, element.y + element.width);
+    maxY = Math.max(maxY, element.y + element.height);
   }
   return { minX, minY, maxX, maxY };
 };
 
 export const clampZoom = (zoom: number): number =>
-  Math.min(MIN_ZOOM, Math.max(MAX_ZOOM, zoom));
+  Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom));
 
 export const zoomToFit = (
   elements: readonly NonDeletedExcalidrawElement[],
@@ -45,8 +45,8 @@ export const zoomToFit = (
   if (!bounds) {
     return viewport;
   }
-  const contentWidth = bounds.maxX - bounds.minX;
-  const contentHeight = bounds.maxY - bounds.minY;
+  const contentWidth = Math.max(bounds.maxX - bounds.minX, 1);
+  const contentHeight = Math.max(bounds.maxY - bounds.minY, 1);
   const availableWidth = viewport.width - padding;
   const availableHeight = viewport.height - padding * 2;
   const zoom = clampZoom(
