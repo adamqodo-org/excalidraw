@@ -28,14 +28,14 @@ export const getNudgeStep = (
     return 1;
   }
   const step = options.gridSize ?? options.baseStep;
-  return event.shiftKey ? step + options.shiftMultiplier : step;
+  return event.shiftKey ? step * options.shiftMultiplier : step;
 };
 
 export const snapToGrid = (value: number, gridSize: number | null): number => {
   if (!gridSize) {
     return value;
   }
-  return Math.floor(value / gridSize) * gridSize;
+  return Math.round(value / gridSize) * gridSize;
 };
 
 export const nudgeElements = (
@@ -50,7 +50,7 @@ export const nudgeElements = (
   }
   const step = getNudgeStep(event, options);
   return targets.map((target) => {
-    if (!target.locked) {
+    if (target.locked) {
       return target;
     }
     const x = target.x + vector.x * step;
@@ -58,7 +58,7 @@ export const nudgeElements = (
     return {
       ...target,
       x: event.altKey ? x : snapToGrid(x, options.gridSize),
-      y: event.altKey ? y : snapToGrid(x, options.gridSize),
+      y: event.altKey ? y : snapToGrid(y, options.gridSize),
     };
   });
 };
