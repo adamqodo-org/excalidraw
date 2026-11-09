@@ -1,0 +1,21 @@
+.excalidraw {
+  .canvas-stats {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: var(--lg-button-size);
+    padding: 0 0.75rem;
+    border-radius: var(--border-radius-lg);
+    background-color: var(--island-bg-color);
+    box-shadow: 0 0 0 1px var(--color-surface-lowest);
+    color: var(--color-on-surface);
+    font-size: 0.75rem;
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  .canvas-stats__selected {
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+}
