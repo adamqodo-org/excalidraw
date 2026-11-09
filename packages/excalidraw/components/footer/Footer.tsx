@@ -7,16 +7,22 @@ import { HelpButton } from "../HelpButton";
 import { Section } from "../Section";
 import Stack from "../Stack";
 
+import { CanvasStats } from "./CanvasStats";
+
+import type { NonDeletedExcalidrawElement } from "@excalidraw/element/types";
+
 import type { ActionManager } from "../../actions/manager";
 import type { UIAppState } from "../../types";
 
 const Footer = ({
   appState,
+  elements,
   actionManager,
   showExitZenModeBtn,
   renderWelcomeScreen,
 }: {
   appState: UIAppState;
+  elements: readonly NonDeletedExcalidrawElement[];
   actionManager: ActionManager;
   showExitZenModeBtn: boolean;
   renderWelcomeScreen: boolean;
@@ -48,6 +54,12 @@ const Footer = ({
                   "layer-ui__wrapper__footer-left--transition-bottom":
                     appState.zenModeEnabled,
                 })}
+              />
+            )}
+            {!appState.zenModeEnabled && (
+              <CanvasStats
+                elements={elements}
+                selectedElementIds={appState.selectedElementIds}
               />
             )}
           </Section>

@@ -531,6 +531,11 @@
     "tooltip": "Your drawings are end-to-end encrypted so Excalidraw's servers will never see them.",
     "link": "Blog post on end-to-end encryption in Excalidraw"
   },
+  "canvasStats": {
+    "shape": "{{count}} shape",
+    "shapes": "{{count}} shapes",
+    "selected": "{{count}} selected"
+  },
   "stats": {
     "angle": "Angle",
     "shapes": "Shapes",
