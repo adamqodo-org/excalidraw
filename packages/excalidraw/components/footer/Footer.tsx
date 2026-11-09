@@ -7,6 +7,8 @@ import { HelpButton } from "../HelpButton";
 import { Section } from "../Section";
 import Stack from "../Stack";
 
+import { BackgroundPresets } from "./BackgroundPresets";
+
 import type { ActionManager } from "../../actions/manager";
 import type { UIAppState } from "../../types";
 
@@ -48,6 +50,11 @@ const Footer = ({
                   "layer-ui__wrapper__footer-left--transition-bottom":
                     appState.zenModeEnabled,
                 })}
+              />
+            )}
+            {!appState.viewModeEnabled && !appState.zenModeEnabled && (
+              <BackgroundPresets
+                viewBackgroundColor={appState.viewBackgroundColor}
               />
             )}
           </Section>
