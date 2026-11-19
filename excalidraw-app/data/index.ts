@@ -133,6 +133,8 @@ export type SocketUpdateData =
 const RE_COLLAB_LINK =
   /^#room=([a-zA-Z0-9_-]+),([a-zA-Z0-9_-]+)(?:,([a-f0-9]{32}))?$/;
 
+export type RoomRole = "editor" | "viewer";
+
 export type RoomLinkData = {
   roomId: string;
   roomKey: string;

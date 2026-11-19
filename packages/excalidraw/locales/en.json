@@ -414,7 +414,11 @@
     "shareTitle": "Join a live collaboration session on Excalidraw",
     "viewOnlyLink": "View-only link",
     "desc_viewOnly": "Want people to watch without editing? Create a view-only link. Everyone already in the room keeps editing.",
-    "button_createViewOnlyLink": "Create view-only link"
+    "button_createViewOnlyLink": "Create view-only link",
+    "roleCounts": "{{editors}} editing · {{viewers}} viewing",
+    "desc_youAreViewer": "You joined with a view-only link. You can watch and follow others, but not edit.",
+    "toast_viewer": "You're viewing this room. Ask the host for the edit link to make changes.",
+    "error_viewerEdit": "Your changes weren't shared: you're a viewer in this room."
   },
   "errorDialog": {
     "title": "Error"

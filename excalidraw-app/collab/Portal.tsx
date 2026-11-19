@@ -15,6 +15,7 @@ import { WS_EVENTS, FILE_UPLOAD_TIMEOUT, WS_SUBTYPES } from "../app_constants";
 import { isSyncableElement } from "../data";
 
 import type {
+  RoomRole,
   SocketUpdateData,
   SocketUpdateDataSource,
   SyncableExcalidrawElement,
@@ -57,6 +58,18 @@ class Portal {
     });
     this.socket.on("room-user-change", (clients: SocketId[]) => {
       this.collab.setCollaborators(clients);
+    });
+    this.socket.on(WS_EVENTS.ROOM_ROLE, (role: RoomRole) => {
+      this.collab.setRole(role);
+    });
+    this.socket.on(
+      WS_EVENTS.ROOM_ROLES_CHANGE,
+      (roles: Record<SocketId, RoomRole>) => {
+        this.collab.setRoles(roles);
+      },
+    );
+    this.socket.on(WS_EVENTS.BROADCAST_REJECTED, () => {
+      this.collab.onBroadcastRejected();
     });
 
     return socket;
