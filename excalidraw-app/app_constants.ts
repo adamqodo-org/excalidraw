@@ -20,6 +20,9 @@ export const WS_EVENTS = {
   USER_FOLLOW_ROOM_CHANGE: "user-follow-room-change",
   JOIN_ROOM: "join-room",
   ENABLE_VIEW_ONLY: "enable-view-only",
+  ROOM_ROLE: "room-role",
+  ROOM_ROLES_CHANGE: "room-roles-change",
+  BROADCAST_REJECTED: "broadcast-rejected",
 } as const;
 
 export enum WS_SUBTYPES {

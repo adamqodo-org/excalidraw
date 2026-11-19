@@ -19,7 +19,12 @@ import { KEYS, getFrame } from "@excalidraw/common";
 import { useEffect, useRef, useState } from "react";
 
 import { atom, useAtom, useAtomValue } from "../app-jotai";
-import { activeRoomLinkAtom, viewOnlyLinkAtom } from "../collab/Collab";
+import {
+  activeRoomLinkAtom,
+  roomRoleAtom,
+  roomRolesAtom,
+  viewOnlyLinkAtom,
+} from "../collab/Collab";
 
 import "./ShareDialog.scss";
 import { QRCode } from "./QRCode";
@@ -71,6 +76,10 @@ const ActiveRoomDialog = ({
   const { onCopy, copyStatus } = useCopyStatus();
   const viewOnlyLink = useAtomValue(viewOnlyLinkAtom);
   const viewOnlyCopy = useCopyStatus();
+  const role = useAtomValue(roomRoleAtom);
+  const roles = Object.values(useAtomValue(roomRolesAtom));
+  const editorCount = roles.filter((r) => r === "editor").length;
+  const viewerCount = roles.length - editorCount;
 
   const copyViewOnlyLink = async () => {
     const link = viewOnlyLink ?? (await collabAPI.enableViewOnly());
@@ -158,32 +167,46 @@ const ActiveRoomDialog = ({
           }}
         />
       </div>
-      <div className="ShareDialog__active__linkRow">
-        {viewOnlyLink ? (
-          <TextField
-            label={t("roomDialog.viewOnlyLink")}
-            readonly
-            fullWidth
-            value={viewOnlyLink}
+      {viewerCount > 0 && (
+        <p className="ShareDialog__active__roles">
+          {t("roomDialog.roleCounts", {
+            editors: editorCount,
+            viewers: viewerCount,
+          })}
+        </p>
+      )}
+      {role === "viewer" ? (
+        <p className="ShareDialog__active__viewOnlyHint">
+          {t("roomDialog.desc_youAreViewer")}
+        </p>
+      ) : (
+        <div className="ShareDialog__active__linkRow">
+          {viewOnlyLink ? (
+            <TextField
+              label={t("roomDialog.viewOnlyLink")}
+              readonly
+              fullWidth
+              value={viewOnlyLink}
+            />
+          ) : (
+            <p className="ShareDialog__active__viewOnlyHint">
+              {t("roomDialog.desc_viewOnly")}
+            </p>
+          )}
+          <FilledButton
+            size="large"
+            variant="outlined"
+            label={
+              viewOnlyLink
+                ? t("buttons.copyLink")
+                : t("roomDialog.button_createViewOnlyLink")
+            }
+            icon={LinkIcon}
+            status={viewOnlyCopy.copyStatus}
+            onClick={copyViewOnlyLink}
           />
-        ) : (
-          <p className="ShareDialog__active__viewOnlyHint">
-            {t("roomDialog.desc_viewOnly")}
-          </p>
-        )}
-        <FilledButton
-          size="large"
-          variant="outlined"
-          label={
-            viewOnlyLink
-              ? t("buttons.copyLink")
-              : t("roomDialog.button_createViewOnlyLink")
-          }
-          icon={LinkIcon}
-          status={viewOnlyCopy.copyStatus}
-          onClick={copyViewOnlyLink}
-        />
-      </div>
+        </div>
+      )}
       <QRCode value={activeRoomLink} />
       <div className="ShareDialog__active__description">
         <p>

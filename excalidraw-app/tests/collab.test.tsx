@@ -249,4 +249,15 @@ describe("collaboration", () => {
       ]);
     });
   });
+
+  it("When the room server says the user is a viewer, then the canvas switches to view mode", async () => {
+    await render(<ExcalidrawApp />);
+    expect(h.state.viewModeEnabled).toBe(false);
+
+    act(() => window.collab.setRole("viewer"));
+
+    await waitFor(() => {
+      expect(h.state.viewModeEnabled).toBe(true);
+    });
+  });
 });

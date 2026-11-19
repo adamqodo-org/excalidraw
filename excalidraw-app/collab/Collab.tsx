@@ -93,6 +93,7 @@ import Portal from "./Portal";
 
 import type {
   RoomLinkData,
+  RoomRole,
   SocketUpdateDataSource,
   SyncableExcalidrawElement,
 } from "../data";
@@ -108,10 +109,13 @@ interface CollabState {
   username: string;
   activeRoomLink: string | null;
   viewOnlyLink: string | null;
+  role: RoomRole | null;
 }
 
 export const activeRoomLinkAtom = atom<string | null>(null);
 export const viewOnlyLinkAtom = atom<string | null>(null);
+export const roomRoleAtom = atom<RoomRole | null>(null);
+export const roomRolesAtom = atom<Record<SocketId, RoomRole>>({});
 
 type CollabInstance = InstanceType<typeof Collab>;
 
@@ -153,6 +157,7 @@ class Collab extends PureComponent<CollabProps, CollabState> {
       username: importUsernameFromLocalStorage() || "",
       activeRoomLink: null,
       viewOnlyLink: null,
+      role: null,
     };
     this.portal = new Portal(this);
     this.fileManager = new FileManager({
@@ -417,6 +422,9 @@ class Collab extends PureComponent<CollabProps, CollabState> {
       this.setIsCollaborating(false);
       this.setActiveRoomLink(null);
       this.setViewOnlyLink(null);
+      this.setState({ role: null });
+      appJotaiStore.set(roomRoleAtom, null);
+      appJotaiStore.set(roomRolesAtom, {});
       this.collaborators = new Map();
       this.excalidrawAPI.updateScene({
         collaborators: this.collaborators,
@@ -887,6 +895,23 @@ class Collab extends PureComponent<CollabProps, CollabState> {
     this.collaborators = collaborators;
     this.excalidrawAPI.updateScene({ collaborators });
   }
+
+  setRole = (role: RoomRole) => {
+    this.setState({ role });
+    appJotaiStore.set(roomRoleAtom, role);
+    if (role === "viewer") {
+      this.excalidrawAPI.updateScene({ appState: { viewModeEnabled: true } });
+      this.excalidrawAPI.setToast({ message: t("roomDialog.toast_viewer") });
+    }
+  };
+
+  setRoles = (roles: Record<SocketId, RoomRole>) => {
+    appJotaiStore.set(roomRolesAtom, roles);
+  };
+
+  onBroadcastRejected = () => {
+    this.setErrorIndicator(t("roomDialog.error_viewerEdit"));
+  };
 
   updateCollaborator = (socketId: SocketId, updates: Partial<Collaborator>) => {
     const collaborators = new Map(this.collaborators);
