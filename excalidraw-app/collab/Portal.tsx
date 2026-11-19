@@ -28,21 +28,23 @@ class Portal {
   socketInitialized: boolean = false; // we don't want the socket to emit any updates until it is fully initialized
   roomId: string | null = null;
   roomKey: string | null = null;
+  editorToken: string | null = null;
   broadcastedElementVersions: Map<string, number> = new Map();
 
   constructor(collab: TCollabClass) {
     this.collab = collab;
   }
 
-  open(socket: Socket, id: string, key: string) {
+  open(socket: Socket, id: string, key: string, editorToken?: string | null) {
     this.socket = socket;
     this.roomId = id;
     this.roomKey = key;
+    this.editorToken = editorToken ?? null;
 
     // Initialize socket listeners
     this.socket.on("init-room", () => {
       if (this.socket) {
-        this.socket.emit("join-room", this.roomId);
+        this.socket.emit(WS_EVENTS.JOIN_ROOM, this.roomId, this.editorToken);
         trackEvent("share", "room joined");
       }
     });
@@ -69,6 +71,7 @@ class Portal {
     this.socket = null;
     this.roomId = null;
     this.roomKey = null;
+    this.editorToken = null;
     this.socketInitialized = false;
     this.broadcastedElementVersions = new Map();
   }
@@ -246,6 +249,19 @@ class Portal {
       );
     }
   };
+
+  /** Asks the room server to make the room view-only; resolves with the editor token. */
+  enableViewOnly = () =>
+    new Promise<string>((resolve) => {
+      this.socket?.emit(
+        WS_EVENTS.ENABLE_VIEW_ONLY,
+        this.roomId,
+        (editorToken: string) => {
+          this.editorToken = editorToken;
+          resolve(editorToken);
+        },
+      );
+    });
 
   broadcastUserFollowed = (payload: OnUserFollowedPayload) => {
     if (this.socket?.id) {

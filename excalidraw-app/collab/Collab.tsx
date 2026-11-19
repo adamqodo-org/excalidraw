@@ -5,6 +5,7 @@ import {
   zoomToFitBounds,
   reconcileElements,
 } from "@excalidraw/excalidraw";
+import { trackEvent } from "@excalidraw/excalidraw/analytics";
 import { ErrorDialog } from "@excalidraw/excalidraw/components/ErrorDialog";
 import { APP_NAME, cloneJSON, EVENT, toBrandedType } from "@excalidraw/common";
 import {
@@ -91,6 +92,7 @@ import { collabErrorIndicatorAtom } from "./CollabError";
 import Portal from "./Portal";
 
 import type {
+  RoomLinkData,
   SocketUpdateDataSource,
   SyncableExcalidrawElement,
 } from "../data";
@@ -105,9 +107,11 @@ interface CollabState {
   dialogNotifiedErrors: Record<string, boolean>;
   username: string;
   activeRoomLink: string | null;
+  viewOnlyLink: string | null;
 }
 
 export const activeRoomLinkAtom = atom<string | null>(null);
+export const viewOnlyLinkAtom = atom<string | null>(null);
 
 type CollabInstance = InstanceType<typeof Collab>;
 
@@ -122,6 +126,7 @@ export interface CollabAPI {
   setUsername: CollabInstance["setUsername"];
   getUsername: CollabInstance["getUsername"];
   getActiveRoomLink: CollabInstance["getActiveRoomLink"];
+  enableViewOnly: CollabInstance["enableViewOnly"];
   setCollabError: CollabInstance["setErrorDialog"];
 }
 
@@ -147,6 +152,7 @@ class Collab extends PureComponent<CollabProps, CollabState> {
       dialogNotifiedErrors: {},
       username: importUsernameFromLocalStorage() || "",
       activeRoomLink: null,
+      viewOnlyLink: null,
     };
     this.portal = new Portal(this);
     this.fileManager = new FileManager({
@@ -237,6 +243,7 @@ class Collab extends PureComponent<CollabProps, CollabState> {
       setUsername: this.setUsername,
       getUsername: this.getUsername,
       getActiveRoomLink: this.getActiveRoomLink,
+      enableViewOnly: this.enableViewOnly,
       setCollabError: this.setErrorDialog,
     };
 
@@ -409,6 +416,7 @@ class Collab extends PureComponent<CollabProps, CollabState> {
     if (!opts?.isUnload) {
       this.setIsCollaborating(false);
       this.setActiveRoomLink(null);
+      this.setViewOnlyLink(null);
       this.collaborators = new Map();
       this.excalidrawAPI.updateScene({
         collaborators: this.collaborators,
@@ -468,9 +476,7 @@ class Collab extends PureComponent<CollabProps, CollabState> {
 
   private fallbackInitializationHandler: null | (() => any) = null;
 
-  startCollaboration = async (
-    existingRoomLinkData: null | { roomId: string; roomKey: string },
-  ) => {
+  startCollaboration = async (existingRoomLinkData: null | RoomLinkData) => {
     if (!this.state.username) {
       import("@excalidraw/random-username").then(({ getRandomUsername }) => {
         const username = getRandomUsername();
@@ -526,6 +532,7 @@ class Collab extends PureComponent<CollabProps, CollabState> {
         }),
         roomId,
         roomKey,
+        existingRoomLinkData?.editorToken,
       );
 
       this.portal.socket.once("connect_error", fallbackInitializationHandler);
@@ -711,7 +718,7 @@ class Collab extends PureComponent<CollabProps, CollabState> {
   }:
     | {
         fetchScene: true;
-        roomLinkData: { roomId: string; roomKey: string } | null;
+        roomLinkData: RoomLinkData | null;
       }
     | { fetchScene: false; roomLinkData?: null }) => {
     clearTimeout(this.socketInitializationTimer!);
@@ -998,6 +1005,27 @@ class Collab extends PureComponent<CollabProps, CollabState> {
   };
 
   getActiveRoomLink = () => this.state.activeRoomLink;
+
+  setViewOnlyLink = (viewOnlyLink: string | null) => {
+    this.setState({ viewOnlyLink });
+    appJotaiStore.set(viewOnlyLinkAtom, viewOnlyLink);
+  };
+
+  /** Makes the room view-only for new joiners and returns the link to share with them. */
+  enableViewOnly = async () => {
+    const { roomId, roomKey } = this.portal;
+    if (!roomId || !roomKey) {
+      return null;
+    }
+    const editorToken = await this.portal.enableViewOnly();
+    this.setActiveRoomLink(
+      getCollaborationLink({ roomId, roomKey, editorToken }),
+    );
+    const viewOnlyLink = getCollaborationLink({ roomId, roomKey });
+    this.setViewOnlyLink(viewOnlyLink);
+    trackEvent("share", "view-only link created");
+    return viewOnlyLink;
+  };
 
   setErrorIndicator = (errorMessage: string | null) => {
     appJotaiStore.set(collabErrorIndicatorAtom, {

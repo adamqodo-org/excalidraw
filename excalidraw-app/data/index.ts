@@ -128,7 +128,16 @@ export type SocketUpdateData =
     _brand: "socketUpdateData";
   };
 
-const RE_COLLAB_LINK = /^#room=([a-zA-Z0-9_-]+),([a-zA-Z0-9_-]+)$/;
+// #room=<roomId>,<roomKey>[,<editorToken>]: links without the editor token
+// open view-only once the room's host has turned view-only on
+const RE_COLLAB_LINK =
+  /^#room=([a-zA-Z0-9_-]+),([a-zA-Z0-9_-]+)(?:,([a-f0-9]{32}))?$/;
+
+export type RoomLinkData = {
+  roomId: string;
+  roomKey: string;
+  editorToken?: string | null;
+};
 
 export const isCollaborationLink = (link: string) => {
   const hash = new URL(link).hash;
@@ -142,7 +151,9 @@ export const getCollaborationLinkData = (link: string) => {
     window.alert(t("alerts.invalidEncryptionKey"));
     return null;
   }
-  return match ? { roomId: match[1], roomKey: match[2] } : null;
+  return match
+    ? { roomId: match[1], roomKey: match[2], editorToken: match[3] ?? null }
+    : null;
 };
 
 export const generateCollaborationLinkData = async () => {
@@ -156,11 +167,9 @@ export const generateCollaborationLinkData = async () => {
   return { roomId, roomKey };
 };
 
-export const getCollaborationLink = (data: {
-  roomId: string;
-  roomKey: string;
-}) => {
-  return `${window.location.origin}${window.location.pathname}#room=${data.roomId},${data.roomKey}`;
+export const getCollaborationLink = (data: RoomLinkData) => {
+  const editorToken = data.editorToken ? `,${data.editorToken}` : "";
+  return `${window.location.origin}${window.location.pathname}#room=${data.roomId},${data.roomKey}${editorToken}`;
 };
 
 /**
