@@ -19,7 +19,7 @@ import { KEYS, getFrame } from "@excalidraw/common";
 import { useEffect, useRef, useState } from "react";
 
 import { atom, useAtom, useAtomValue } from "../app-jotai";
-import { activeRoomLinkAtom } from "../collab/Collab";
+import { activeRoomLinkAtom, viewOnlyLinkAtom } from "../collab/Collab";
 
 import "./ShareDialog.scss";
 import { QRCode } from "./QRCode";
@@ -69,6 +69,21 @@ const ActiveRoomDialog = ({
   const ref = useRef<HTMLInputElement>(null);
   const isShareSupported = "share" in navigator;
   const { onCopy, copyStatus } = useCopyStatus();
+  const viewOnlyLink = useAtomValue(viewOnlyLinkAtom);
+  const viewOnlyCopy = useCopyStatus();
+
+  const copyViewOnlyLink = async () => {
+    const link = viewOnlyLink ?? (await collabAPI.enableViewOnly());
+    if (!link) {
+      return;
+    }
+    try {
+      await copyTextToSystemClipboard(link);
+      viewOnlyCopy.onCopy();
+    } catch (e) {
+      collabAPI.setCollabError(t("errors.copyToSystemClipboardFailed"));
+    }
+  };
 
   const copyRoomLink = async () => {
     try {
@@ -141,6 +156,32 @@ const ActiveRoomDialog = ({
             copyRoomLink();
             onCopy();
           }}
+        />
+      </div>
+      <div className="ShareDialog__active__linkRow">
+        {viewOnlyLink ? (
+          <TextField
+            label={t("roomDialog.viewOnlyLink")}
+            readonly
+            fullWidth
+            value={viewOnlyLink}
+          />
+        ) : (
+          <p className="ShareDialog__active__viewOnlyHint">
+            {t("roomDialog.desc_viewOnly")}
+          </p>
+        )}
+        <FilledButton
+          size="large"
+          variant="outlined"
+          label={
+            viewOnlyLink
+              ? t("buttons.copyLink")
+              : t("roomDialog.button_createViewOnlyLink")
+          }
+          icon={LinkIcon}
+          status={viewOnlyCopy.copyStatus}
+          onClick={copyViewOnlyLink}
         />
       </div>
       <QRCode value={activeRoomLink} />

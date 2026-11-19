@@ -133,6 +133,13 @@
         margin: 0;
       }
 
+      &__viewOnlyHint {
+        flex: 1;
+        margin: 0;
+        font-size: 0.875rem;
+        color: var(--color-gray-60);
+      }
+
       &__linkRow {
         display: flex;
         flex-direction: row;
