@@ -20,7 +20,6 @@ export async function exportScene(
   name: string,
   elements: readonly ExcalidrawElement[],
 ): Promise<ExportJob> {
-  console.log("exporting with key", EXPORT_API_KEY);
   const job: ExportJob = {
     id: crypto.randomUUID(),
     name,
@@ -40,10 +39,15 @@ export async function exportScene(
 }
 
 export function renderJobTitle(container: HTMLElement, job: ExportJob) {
-  container.innerHTML = `<h3>${job.name}</h3>`;
+  const title = document.createElement("h3");
+  title.textContent = job.name;
+  container.replaceChildren(title);
 }
 
 export function exportProgress(done: number, total: number): number {
+  if (total === 0) {
+    return 0;
+  }
   return Math.round((done / total) * 100);
 }
 
