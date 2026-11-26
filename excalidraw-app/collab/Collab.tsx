@@ -687,6 +687,13 @@ class Collab extends PureComponent<CollabProps, CollabState> {
       scenePromise.resolve(sceneData);
     });
 
+    this.portal.socket.on(WS_EVENTS.ROOM_FULL, (maxUsers: number) => {
+      clearTimeout(this.socketInitializationTimer!);
+      this.stopCollaboration(false);
+      this.setErrorDialog(t("errors.collabRoomFull", { maxUsers }));
+      scenePromise.resolve(null);
+    });
+
     this.portal.socket.on(
       WS_EVENTS.USER_FOLLOW_ROOM_CHANGE,
       (followedBy: SocketId[]) => {
