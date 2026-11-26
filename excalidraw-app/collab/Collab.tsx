@@ -58,6 +58,7 @@ import {
   FIREBASE_STORAGE_PREFIXES,
   INITIAL_SCENE_UPDATE_TIMEOUT,
   LOAD_IMAGES_TIMEOUT,
+  SERVER_SHUTDOWN_TOAST_DURATION_MS,
   WS_SUBTYPES,
   SYNC_FULL_SCENE_INTERVAL_MS,
   WS_EVENTS,
@@ -998,6 +999,13 @@ class Collab extends PureComponent<CollabProps, CollabState> {
   };
 
   getActiveRoomLink = () => this.state.activeRoomLink;
+
+  onServerShutdown = () => {
+    this.excalidrawAPI.setToast({
+      message: t("toast.collabServerRestarting"),
+      duration: SERVER_SHUTDOWN_TOAST_DURATION_MS,
+    });
+  };
 
   setErrorIndicator = (errorMessage: string | null) => {
     appJotaiStore.set(collabErrorIndicatorAtom, {

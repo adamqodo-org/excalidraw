@@ -56,6 +56,9 @@ class Portal {
     this.socket.on("room-user-change", (clients: SocketId[]) => {
       this.collab.setCollaborators(clients);
     });
+    this.socket.on(WS_EVENTS.SERVER_SHUTDOWN, () => {
+      this.collab.onServerShutdown();
+    });
 
     return socket;
   }
